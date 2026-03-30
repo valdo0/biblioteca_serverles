@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  bff:
+    build: ./biblioteca
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVICES_MS_ROLES_URL=http://ms-roles:8081
+      - SERVICES_MS_AUTH_URL=http://ms-auth:8082
+      - SERVICES_MS_BIBLIOTECA_URL=http://ms-biblioteca:8083
+      - AZURE_FUNCTION_BASE_URL=https://sumativa1.azurewebsites.net/api
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-roles:
+    build: ./ms-roles
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./ms-roles/src/main/resources/wallet:/app/wallet
+    environment:
+      - AZURE_FUNCTION_ROLE_NOTIFICATION_URL=https://sumativa1.azurewebsites.net/api/notify/role
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-auth:
+    build: ./ms-auth
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./ms-auth/src/main/resources/wallet:/app/wallet
+    environment:
+      - AZURE_FUNCTION_SUSPICIOUS_ACTIVITY_URL=https://sumativa1.azurewebsites.net/api/alert/suspicious
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ms-biblioteca:
+    build: ./ms-biblioteca
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./ms-biblioteca/src/main/resources/wallet:/app/wallet
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

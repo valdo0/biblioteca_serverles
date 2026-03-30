@@ -1,0 +1,512 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Sistema Biblioteca Serverless - Sumativa 1",
+        "description": "Colección completa de endpoints para el sistema de biblioteca.\n\n**Servidores:**\n- BFF `:8080` — Punto de entrada único\n- ms-auth `:8082` — Autenticación y registro\n- ms-roles `:8081` — Gestión de roles\n- ms-biblioteca `:8083` — CRUD libros y préstamos\n- Azure Functions `:7071` — Notificaciones serverless",
+        "version": "2.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "BFF (usar este primero)"
+        },
+        {
+            "url": "http://localhost:8081",
+            "description": "ms-roles (directo)"
+        },
+        {
+            "url": "http://localhost:8082",
+            "description": "ms-auth (directo)"
+        },
+        {
+            "url": "http://localhost:8083",
+            "description": "ms-biblioteca (directo)"
+        },
+        {
+            "url": "http://localhost:7071",
+            "description": "Azure Functions"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Autenticación",
+            "description": "Registro e inicio de sesión"
+        },
+        {
+            "name": "Roles",
+            "description": "Gestión de roles"
+        },
+        {
+            "name": "Libros",
+            "description": "CRUD de libros"
+        },
+        {
+            "name": "Préstamos",
+            "description": "CRUD de préstamos"
+        },
+        {
+            "name": "Azure Functions",
+            "description": "Funciones serverless de notificación"
+        }
+    ],
+    "paths": {
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Registrar nuevo usuario",
+                "operationId": "register",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "nombre": "Ana García",
+                                "email": "ana@biblioteca.cl",
+                                "password": "pass123",
+                                "rol": "LECTOR"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuario registrado"
+                    },
+                    "409": {
+                        "description": "Email ya registrado"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticación"
+                ],
+                "summary": "Iniciar sesión (3 intentos activan alerta serverless)",
+                "operationId": "login",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "email": "usuario@biblioteca.cl",
+                                "password": "pass123"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login exitoso"
+                    },
+                    "401": {
+                        "description": "Login fallido (al 3° activa función SuspiciousActivity)"
+                    }
+                }
+            }
+        },
+        "/api/roles/assign": {
+            "post": {
+                "tags": [
+                    "Roles"
+                ],
+                "summary": "Asignar rol a usuario (activa función RoleNotification)",
+                "operationId": "assignRole",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "usuarioId": "1",
+                                "rol": "ADMINISTRADOR",
+                                "asignadoPor": "superadmin"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Rol asignado y notificación enviada"
+                    }
+                }
+            }
+        },
+        "/api/libros": {
+            "get": {
+                "tags": [
+                    "Libros"
+                ],
+                "summary": "Listar todos los libros",
+                "operationId": "listarLibros",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de libros"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Libros"
+                ],
+                "summary": "Crear nuevo libro",
+                "operationId": "crearLibro",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "titulo": "Pablo Neruda Obras Completas",
+                                "autor": "Pablo Neruda",
+                                "isbn": "978-0000000001",
+                                "cantidad": 2
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Libro creado"
+                    }
+                }
+            }
+        },
+        "/api/libros/{id}": {
+            "get": {
+                "tags": [
+                    "Libros"
+                ],
+                "summary": "Obtener libro por ID",
+                "operationId": "obtenerLibro",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Datos del libro"
+                    },
+                    "404": {
+                        "description": "No encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Libros"
+                ],
+                "summary": "Actualizar libro",
+                "operationId": "actualizarLibro",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "titulo": "Cien Años de Soledad (Ed. 2024)",
+                                "autor": "Gabriel García Márquez",
+                                "cantidad": 5,
+                                "disponible": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Libro actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Libros"
+                ],
+                "summary": "Eliminar libro",
+                "operationId": "eliminarLibro",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Libro eliminado"
+                    }
+                }
+            }
+        },
+        "/api/prestamos": {
+            "get": {
+                "tags": [
+                    "Préstamos"
+                ],
+                "summary": "Listar todos los préstamos",
+                "operationId": "listarPrestamos",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de préstamos"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Préstamos"
+                ],
+                "summary": "Crear nuevo préstamo",
+                "operationId": "crearPrestamo",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "usuarioId": 1,
+                                "libroId": 2,
+                                "libroTitulo": "El Principito",
+                                "fechaPrestamo": "2026-03-28",
+                                "fechaDevolucion": "2026-04-11"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Préstamo creado"
+                    }
+                }
+            }
+        },
+        "/api/prestamos/{id}": {
+            "get": {
+                "tags": [
+                    "Préstamos"
+                ],
+                "summary": "Obtener préstamo por ID",
+                "operationId": "obtenerPrestamo",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Datos del préstamo"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Préstamos"
+                ],
+                "summary": "Actualizar préstamo (ej. marcar como devuelto)",
+                "operationId": "actualizarPrestamo",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "usuarioId": 1,
+                                "libroId": 1,
+                                "estado": "DEVUELTO",
+                                "fechaDevolucion": "2026-03-28"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Préstamo actualizado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Préstamos"
+                ],
+                "summary": "Eliminar préstamo",
+                "operationId": "eliminarPrestamo",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Préstamo eliminado"
+                    }
+                }
+            }
+        },
+        "/api/notify/role": {
+            "post": {
+                "tags": [
+                    "Azure Functions"
+                ],
+                "summary": "Función: Notificación de cambio de rol",
+                "operationId": "roleNotification",
+                "servers": [
+                    {
+                        "url": "http://localhost:7071"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "usuarioId": "1",
+                                "rol": "ADMINISTRADOR",
+                                "accion": "ASIGNADO"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Notificación procesada"
+                    }
+                }
+            }
+        },
+        "/api/alert/suspicious": {
+            "post": {
+                "tags": [
+                    "Azure Functions"
+                ],
+                "summary": "Función: Alerta de actividad sospechosa",
+                "operationId": "suspiciousActivity",
+                "servers": [
+                    {
+                        "url": "http://localhost:7071"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "alerta": "3 intentos fallidos de login",
+                                "usuario": "hacker@evil.com"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Alerta registrada"
+                    }
+                }
+            }
+        }
+    }
+}
