@@ -167,4 +167,20 @@ public class ProxyController {
         return cleanResponse(restTemplate.exchange(msBibliotecaUrl + "/prestamos/" + id, HttpMethod.DELETE,
                 HttpEntity.EMPTY, String.class));
     }
+
+    // ===== GRAPHQL (Azure Functions) =====
+
+    @PostMapping("/graphql/catalog")
+    public ResponseEntity<String> graphqlCatalog(@RequestBody String payload) {
+        log.info("BFF: Reenviando consulta GraphQL de catálogo a Azure Function.");
+        return cleanResponse(
+                restTemplate.postForEntity(functionBaseUrl + "/graphql/catalog", jsonEntity(payload), String.class));
+    }
+
+    @PostMapping("/graphql/profile")
+    public ResponseEntity<String> graphqlProfile(@RequestBody String payload) {
+        log.info("BFF: Reenviando consulta GraphQL de perfil a Azure Function.");
+        return cleanResponse(
+                restTemplate.postForEntity(functionBaseUrl + "/graphql/profile", jsonEntity(payload), String.class));
+    }
 }

@@ -10,7 +10,9 @@ services:
       - SERVICES_MS_ROLES_URL=http://ms-roles:8081
       - SERVICES_MS_AUTH_URL=http://ms-auth:8082
       - SERVICES_MS_BIBLIOTECA_URL=http://ms-biblioteca:8083
-      - AZURE_FUNCTION_BASE_URL=https://sumativa1.azurewebsites.net/api
+      # Para desarrollo local, usa Azure Functions local (puerto 7071)
+      # Para producción, cambia a: https://sumativa1.azurewebsites.net/api
+      - AZURE_FUNCTION_BASE_URL=http://host.docker.internal:7071/api
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -21,7 +23,9 @@ services:
     volumes:
       - ./ms-roles/src/main/resources/wallet:/app/wallet
     environment:
-      - AZURE_FUNCTION_ROLE_NOTIFICATION_URL=https://sumativa1.azurewebsites.net/api/notify/role
+      # Para desarrollo local, usa Azure Functions local (puerto 7071)
+      # Para producción, cambia a: https://sumativa1.azurewebsites.net/api/notify/role
+      - AZURE_FUNCTION_ROLE_NOTIFICATION_URL=http://host.docker.internal:7071/api/notify/role
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -32,7 +36,9 @@ services:
     volumes:
       - ./ms-auth/src/main/resources/wallet:/app/wallet
     environment:
-      - AZURE_FUNCTION_SUSPICIOUS_ACTIVITY_URL=https://sumativa1.azurewebsites.net/api/alert/suspicious
+      # Para desarrollo local, usa Azure Functions local (puerto 7071)
+      # Para producción, cambia a: https://sumativa1.azurewebsites.net/api/alert/suspicious
+      - AZURE_FUNCTION_SUSPICIOUS_ACTIVITY_URL=http://host.docker.internal:7071/api/alert/suspicious
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

@@ -2,7 +2,7 @@
     "openapi": "3.0.3",
     "info": {
         "title": "Sistema Biblioteca Serverless - Sumativa 1",
-        "description": "Colección completa de endpoints para el sistema de biblioteca.\n\n**Servidores:**\n- BFF `:8080` — Punto de entrada único\n- ms-auth `:8082` — Autenticación y registro\n- ms-roles `:8081` — Gestión de roles\n- ms-biblioteca `:8083` — CRUD libros y préstamos\n- Azure Functions `:7071` — Notificaciones serverless",
+        "description": "Colección completa de endpoints para el sistema de biblioteca.\n\n**Servidores:**\n- BFF `:8080` — Punto de entrada único (incluye GraphQL)\n- ms-auth `:8082` — Autenticación y registro\n- ms-roles `:8081` — Gestión de roles\n- ms-biblioteca `:8083` — CRUD libros y préstamos\n- Azure Functions `:7071` — Notificaciones serverless y GraphQL",
         "version": "2.0.0"
     },
     "servers": [
@@ -47,6 +47,10 @@
         {
             "name": "Azure Functions",
             "description": "Funciones serverless de notificación"
+        },
+        {
+            "name": "GraphQL",
+            "description": "Consultas GraphQL (catálogo y perfil)"
         }
     ],
     "paths": {
@@ -504,6 +508,87 @@
                 "responses": {
                     "200": {
                         "description": "Alerta registrada"
+                    }
+                }
+            }
+        },
+        "/api/graphql/catalog": {
+            "post": {
+                "tags": [
+                    "GraphQL"
+                ],
+                "summary": "Consulta GraphQL de catálogo de libros",
+                "operationId": "graphqlCatalog",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "examples": {
+                                "todos_los_libros": {
+                                    "summary": "Listar todos los libros",
+                                    "value": {
+                                        "query": "query { books { id titulo autor isbn cantidad disponible } }"
+                                    }
+                                },
+                                "solo_disponibles": {
+                                    "summary": "Solo libros disponibles",
+                                    "value": {
+                                        "query": "query { books(disponible: true) { id titulo autor cantidad } }"
+                                    }
+                                },
+                                "por_autor": {
+                                    "summary": "Buscar por autor",
+                                    "value": {
+                                        "query": "query { books(autor: \"García\") { id titulo autor isbn } }"
+                                    }
+                                },
+                                "libro_especifico": {
+                                    "summary": "Libro específico por ID",
+                                    "value": {
+                                        "query": "query { book(id: \"1\") { id titulo autor isbn cantidad disponible } }"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respuesta GraphQL con catálogo de libros"
+                    }
+                }
+            }
+        },
+        "/api/graphql/profile": {
+            "post": {
+                "tags": [
+                    "GraphQL"
+                ],
+                "summary": "Consulta GraphQL de perfil de usuario",
+                "operationId": "graphqlProfile",
+                "servers": [
+                    {
+                        "url": "http://localhost:8080"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "query": "query { user(id: \"1\") { id nombre email rol { nombre permisos } librosPrestados { titulo fechaDevolucion } } }"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Respuesta GraphQL con perfil de usuario"
                     }
                 }
             }

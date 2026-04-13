@@ -2,6 +2,8 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "",
-    "FUNCTIONS_WORKER_RUNTIME": "java"
+    "FUNCTIONS_WORKER_RUNTIME": "java",
+    "MS_BIBLIOTECA_URL": "http://localhost:8083",
+    "MS_AUTH_URL": "http://localhost:8082"
   }
 }

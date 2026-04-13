@@ -112,4 +112,20 @@ public class AuthController {
         log.info("ms-auth: Login exitoso para: " + email);
         return ResponseEntity.ok(Map.of("mensaje", "Login exitoso", "token", java.util.UUID.randomUUID().toString()));
     }
+
+    // ========== OBTENER USUARIO POR ID ==========
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUsuarioById(@PathVariable Long id) {
+        log.info("ms-auth: Consultando usuario con ID: " + id);
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+        
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of("error", "Usuario no encontrado."));
+        }
+        
+        Usuario usuario = usuarioOpt.get();
+        usuario.setPassword(null); // Ocultar contraseña
+        
+        return ResponseEntity.ok(usuario);
+    }
 }

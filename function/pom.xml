@@ -37,6 +37,18 @@
             <version>2.23.4</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- GraphQL dependencies -->
+        <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
+            <version>21.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.2</version>
+        </dependency>
     </dependencies>
 
     <build>
