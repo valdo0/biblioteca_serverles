@@ -2,15 +2,8 @@
   "scriptFile" : "../sumativa1-1.0-SNAPSHOT.jar",
   "entryPoint" : "com.function.SuspiciousActivityFunction.run",
   "bindings" : [ {
-    "type" : "httpTrigger",
+    "type" : "eventGridTrigger",
     "direction" : "in",
-    "name" : "req",
-    "route" : "alert/suspicious",
-    "methods" : [ "POST" ],
-    "authLevel" : "ANONYMOUS"
-  }, {
-    "type" : "http",
-    "direction" : "out",
-    "name" : "$return"
+    "name" : "eventGridEvent"
   } ]
 }

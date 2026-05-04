@@ -23,9 +23,9 @@ services:
     volumes:
       - ./ms-roles/src/main/resources/wallet:/app/wallet
     environment:
-      # Para desarrollo local, usa Azure Functions local (puerto 7071)
-      # Para producción, cambia a: https://sumativa1.azurewebsites.net/api/notify/role
-      - AZURE_FUNCTION_ROLE_NOTIFICATION_URL=http://host.docker.internal:7071/api/notify/role
+      # Para Event Grid (Local emulation Webhook o Cloud Topic)
+      - AZURE_EVENT_GRID_TOPIC_ENDPOINT=${AZURE_EVENT_GRID_TOPIC_ENDPOINT:-https://topic-eventos-biblioteca.eastus2-1.eventgrid.azure.net/api/events}
+      - AZURE_EVENT_GRID_TOPIC_KEY=${AZURE_EVENT_GRID_TOPIC_KEY:-local_test_key}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -36,9 +36,9 @@ services:
     volumes:
       - ./ms-auth/src/main/resources/wallet:/app/wallet
     environment:
-      # Para desarrollo local, usa Azure Functions local (puerto 7071)
-      # Para producción, cambia a: https://sumativa1.azurewebsites.net/api/alert/suspicious
-      - AZURE_FUNCTION_SUSPICIOUS_ACTIVITY_URL=http://host.docker.internal:7071/api/alert/suspicious
+      # Para Event Grid (Local emulation Webhook o Cloud Topic)
+      - AZURE_EVENT_GRID_TOPIC_ENDPOINT=${AZURE_EVENT_GRID_TOPIC_ENDPOINT:-https://topic-eventos-biblioteca.eastus2-1.eventgrid.azure.net/api/events}
+      - AZURE_EVENT_GRID_TOPIC_KEY=${AZURE_EVENT_GRID_TOPIC_KEY:-local_test_key}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

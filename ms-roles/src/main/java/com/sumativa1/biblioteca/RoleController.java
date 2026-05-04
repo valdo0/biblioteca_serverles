@@ -12,8 +12,11 @@ public class RoleController {
 
     private final RestTemplate restTemplate;
 
-    @Value("${azure.function.role-notification.url}")
+    @Value("${azure.eventgrid.topic.endpoint}")
     private String functionUrl;
+
+    @Value("${azure.eventgrid.topic.key}")
+    private String topicKey;
 
     public RoleController() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
@@ -25,7 +28,21 @@ public class RoleController {
     private HttpEntity<String> jsonEntity(String payload) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(payload, headers);
+        headers.set("aeg-sas-key", topicKey);
+        headers.set("aeg-event-type", "Notification");
+
+        String eventGridPayload = "[\n" +
+                "  {\n" +
+                "    \"id\": \"" + java.util.UUID.randomUUID().toString() + "\",\n" +
+                "    \"eventType\": \"RoleAssigned\",\n" +
+                "    \"subject\": \"ms-roles/assign\",\n" +
+                "    \"eventTime\": \"" + java.time.Instant.now().toString() + "\",\n" +
+                "    \"data\": " + payload + ",\n" +
+                "    \"dataVersion\": \"1.0\"\n" +
+                "  }\n" +
+                "]";
+
+        return new HttpEntity<>(eventGridPayload, headers);
     }
 
     @PostMapping("/assign")
